@@ -1,0 +1,56 @@
+#define aref_voltage 4.08
+//Led Pin
+int led = 13;
+//TEMP Pin
+int tempPin = A1;
+//the resolution is 10 mV / degree centigrade with a
+//500 mV offset to allow for negative temperatures
+int tempReading;
+
+void setup() {
+// To send debugging information via the Serial monitor
+Serial.begin(9600);
+pinMode(led, OUTPUT);
+}
+
+void loop() {
+  
+  // put your main code here, to run repeatedly:
+tempReading = analogRead(tempPin);  //Get a temperaure reading from the temp sensor
+Serial.print("Temp reading = "); // allow the temp reading to appear in debugging > Serial Monitor
+Serial.print(tempReading);     // the raw analog reading
+// converting that reading to voltage, which is based off the reference voltage
+float voltage = tempReading * aref_voltage;
+//Print out Voltage
+Serial.print(" – ");
+Serial.print(voltage);
+Serial.println(" volts");
+
+// now print out the temperature
+//converting from 10 mv per degree with 500 mV offset
+float temperatureC = (voltage - 0.5) * 100;
+//to degrees ((voltage – 500mV) times 100)
+Serial.print(temperatureC);
+Serial.println(" degrees C");
+voltage /= 1024.0;
+
+// now convert to Fahrenheight
+float temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;
+Serial.print(temperatureF);
+Serial.println(" degrees F");
+
+if (temperatureC >= 12){
+
+  digitalWrite(led,HIGH);
+  delay(500);
+  digitalWrite(led,LOW);
+  delay(500);
+}
+else if (temperatureC >= 1){
+    digitalWrite(led,HIGH);
+    delay(5000);
+    digitalWrite(led,LOW);
+    delay(1000);
+  }
+  
+}
