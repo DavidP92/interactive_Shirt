@@ -1,0 +1,31 @@
+#include <Adafruit_NeoPixel.h>
+#define Pin A1
+#define Pixel 16
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(Pixel, Pin, NEO_GRB + NEO_KHZ800);
+
+int sine [] = {15, 14, 13, 12, 11, 10, 1, 2, 3, 4, 5, 9, 8, 6, 7};
+
+uint32_t magenta = strip.Color(255, 0, 255);
+uint32_t RED = strip.Color(255, 0, 0);
+uint32_t BLUE = strip.Color(0, 0, 255);
+uint32_t GREEN = strip.Color(0, 255, 0);
+uint32_t greenishwhite = strip.Color(0, 64, 0, 64);
+uint32_t WHITE = strip.Color(0, 0, 0);
+
+void setup() {
+  strip.begin();
+  strip.setBrightness(200);
+  strip.show();
+}
+
+void loop() {
+  for(int i = 0; i <= 15; i++){
+    strip.setPixelColor(sine[i], strip.Color(255, 0, 0));
+    delay(100);
+    for(int j=0; j <= 10; j++){
+      strip.setPixelColor(sine[(j+i+1)%15], strip.Color(75, 250, 100));
+    }
+  strip.show();
+  }
+}
