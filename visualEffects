@@ -1,0 +1,84 @@
+#include <Wire.h> // Must include Wire library for I2C
+#include <SparkFun_MMA8452Q.h> // Includes the SFE_MMA8452Q library
+#include <Adafruit_NeoPixel.h>
+
+#define PIN 9
+#define N_LEDS 30
+#define temp A0
+
+MMA8452Q accel;
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_LEDS, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(16, 10, NEO_GRB + NEO_KHZ800);
+
+#define temp A0
+
+void setup() {
+  
+  Serial.begin(9600);
+  pinMode(temp, OUTPUT);
+  accel.init();
+  strip.begin();
+  pixels.begin();
+  delay(500);
+}
+ 
+void loop() {
+
+  int reading = analogRead(temp);
+  float voltage = reading * 3.3;
+  voltage /= 1024.0;
+  Serial.print(voltage); Serial.println("voltage");
+  float temperatureC = (voltage - 0.5) * 100;
+  Serial.print(temperatureC); Serial.println("Degrees in C");
+  float temperatureF = (temperatureC * 9.0 / 5.0) + 32;
+  Serial.print(temperatureF); Serial.println("Degrees in F");
+  delay(500);
+    
+    if (accel.available())
+  { 
+      accel.read();
+      float norm=sqrt(accel.cx*accel.cx+accel.cy*accel.cy+accel.cz*accel.cz);
+      int count=(int)(norm*8.0);
+      if (count>30) count=30;
+      for(int i=0;i<30 ;i++){
+        if (i<=count) {
+          int r=fabs(accel.cx)*150.0/2.0; 
+          int g=fabs(accel.cy)*150.0/2.0; 
+          int b=fabs(accel.cz)*150.0/2.0; 
+          strip.setPixelColor(i, strip.Color(r,g,b));
+        } else{
+            if(temperatureF > 74){
+              strip.setPixelColor(i, strip.Color(255,0,0));
+            } else{
+              strip.setPixelColor(i, strip.Color(0,0,255));
+            }
+         }
+      }
+    strip.show(); // This sends the updated pixel color to the hardware.
+    delay(100); // Delay for a period of time (in milliseconds).
+    }
+  if (accel.available())
+  {
+      accel.read();
+      float norm=sqrt(accel.cx*accel.cx+accel.cy*accel.cy+accel.cz*accel.cz);
+      int count=(int)(norm*10.0);
+      if (count>16) count=16;
+      for(int i=0;i<16;i++){
+        if (i<=count) {
+          int r=fabs(accel.cx)*150.0/2.0; 
+          int g=fabs(accel.cy)*150.0/2.0; 
+          int b=fabs(accel.cz)*150.0/2.0; 
+          pixels.setPixelColor(i, pixels.Color(r,g,b));
+        } else{
+          if(temperatureF > 74){
+              strip.setPixelColor(i, strip.Color(255,0,0));
+            }   else{
+                strip.setPixelColor(i, strip.Color(0,0,255));
+            }
+          }
+        }
+    pixels.show(); // This sends the updated pixel color to the hardware.
+    delay(100); // Delay for a period of time (in milliseconds).
+  }
+}
